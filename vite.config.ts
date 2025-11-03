@@ -1,23 +1,14 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
-      }
-    };
-});
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  // 
+  // !!! 중요 !!!
+  // GitHub 저장소 이름에 맞게 이 값을 수정해주세요.
+  // 예를 들어, 저장소 주소가 https://github.com/USER/expert-search-page 라면,
+  // base 값은 '/expert-search-page/' 가 되어야 합니다.
+  //
+  base: '/expert-ko-passage-title-search-page/', 
+})

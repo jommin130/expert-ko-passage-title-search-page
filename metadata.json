@@ -1,0 +1,5 @@
+{
+  "name": "Google Sheet Search",
+  "description": "An application to fetch data from a public Google Spreadsheet (published as CSV) and provide a searchable interface to view the data.",
+  "requestFramePermissions": []
+}

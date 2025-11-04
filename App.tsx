@@ -304,7 +304,7 @@ const App: React.FC = () => {
                 <div className="relative max-w-3xl mx-auto">
                    <input
                      type="text"
-                     placeholder="작품명/지문명을 입력하여 검색하세요."
+                     placeholder="찾고 있는 작품명/지문명을 입력하세요."
                      value={searchTerm}
                      onChange={(e) => setSearchTerm(e.target.value)}
                      className="w-full pl-5 pr-12 py-3 text-base border border-slate-300 dark:border-slate-700 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-shadow shadow-sm"

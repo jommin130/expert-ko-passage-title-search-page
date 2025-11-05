@@ -1,5 +1,5 @@
 {
-  "name": "Google Sheet Search",
-  "description": "An application to fetch data from a public Google Spreadsheet (published as CSV) and provide a searchable interface to view the data.",
+  "name": "국어 작품 수록 교재 찾기",
+  "description": "찾고 있는 작품이 수록된 교재를 찾아보세요",
   "requestFramePermissions": []
 }

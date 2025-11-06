@@ -51,13 +51,13 @@ const LoadingSpinner: React.FC = () => (
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">데이터를 가져오는 중...</p>
+        <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">잠시만 기다려주세요.</p>
     </div>
 );
 
 const ErrorDisplay: React.FC<{ message: string }> = ({ message }) => (
     <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg m-6" role="alert">
-        <strong className="font-bold">오류 발생: </strong>
+        <strong className="font-bold">일시적인 오류가 발생했어요. 페이지를 새로고침 해주세요.: </strong>
         <span className="block sm:inline">{message}</span>
     </div>
 );
@@ -296,7 +296,7 @@ const App: React.FC = () => {
         
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
             <div className="text-center mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 엑스퍼트 작품 찾기</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 작품/지문 수록교재 찾기</h1>
                 <p className="mt-2 text-md sm:text-lg text-slate-600 dark:text-slate-400">찾고 있는 작품이 수록된 교재를 빠르게 찾아보세요!</p>
             </div>
 

@@ -271,7 +271,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
 
             {isOpen && (
                  <div
-                    className="absolute z-10 mt-1 w-max min-w-full max-w-lg rounded-md border border-slate-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
+                    className="absolute z-10 mt-1 w-80 max-w-lg rounded-md border border-slate-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
                     role="listbox"
                 >
                     <div className="max-h-60 overflow-auto p-1">
@@ -283,7 +283,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
                                 role="option"
                                 aria-selected={!value}
                             >
-                                {placeholder}
+                                <span className="block truncate">{placeholder}</span>
                             </button>
                         )}
                         {options.map(option => (
@@ -295,7 +295,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
                                 role="option"
                                 aria-selected={value === option}
                             >
-                                <span className="block">{optionLabels?.[option] || option}</span>
+                                <span className="block truncate">{optionLabels?.[option] || option}</span>
                             </button>
                         ))}
                     </div>
@@ -317,6 +317,19 @@ const App: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const isInitialMount = useRef(true);
     const ITEMS_PER_PAGE = 20;
+
+    const [isSortOpen, setIsSortOpen] = useState(false);
+    const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+                setIsSortOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -459,6 +472,11 @@ const App: React.FC = () => {
         return newOptions;
     }, [data, filters]);
 
+    const sortOptions: Record<string, string> = {
+        [DISPLAY_COLUMNS[0].header]: '작품/지문 이름순',
+        [DISPLAY_COLUMNS[1].header]: '수록교재 이름순',
+    };
+    const sortKeys = Object.keys(sortOptions);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -536,20 +554,48 @@ const App: React.FC = () => {
 
             <div className="mt-6">
                  <div className="flex justify-between items-center mb-2 px-1">
-                     <CustomDropdown
-                        label="정렬 기준"
-                        value={sortKey}
-                        onChange={setSortKey}
-                        options={[DISPLAY_COLUMNS[0].header, DISPLAY_COLUMNS[1].header]}
-                        optionLabels={{
-                            [DISPLAY_COLUMNS[0].header]: '작품/지문 이름순',
-                            [DISPLAY_COLUMNS[1].header]: '수록교재 이름순',
-                        }}
-                        className="w-full sm:w-52"
-                        buttonClassName="rounded-md border-slate-300"
-                    />
-                     <div className="text-sm text-slate-600 dark:text-slate-400">
-                        총 {filteredData.length}개 결과
+                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                        전체 {filteredData.length}개
+                    </div>
+                    <div className="relative" ref={sortDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setIsSortOpen(!isSortOpen)}
+                            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 font-medium transition-colors"
+                            aria-haspopup="listbox"
+                            aria-expanded={isSortOpen}
+                            aria-label={`정렬 기준: ${sortOptions[sortKey]}`}
+                        >
+                            <span>{sortOptions[sortKey]}</span>
+                            <svg className={`h-4 w-4 text-slate-500 transform transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                               <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+
+                        {isSortOpen && (
+                             <div
+                                className="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md border border-slate-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
+                                role="listbox"
+                            >
+                                <div className="p-1">
+                                    {sortKeys.map(key => (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            onClick={() => {
+                                                setSortKey(key);
+                                                setIsSortOpen(false);
+                                            }}
+                                            className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${sortKey === key ? 'bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-200' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                            role="option"
+                                            aria-selected={sortKey === key}
+                                        >
+                                            {sortOptions[key]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

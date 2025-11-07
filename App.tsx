@@ -36,7 +36,7 @@ const HighlightedText: React.FC<{ text: string | undefined; highlight: string }>
 // 2. '링크' 탭에서 변경하려는 시트(탭)를 선택합니다.
 // 3. '웹페이지' 대신 '쉼표로 구분된 값(.csv)'을 선택합니다.
 // 4. '게시' 버튼을 누르고 생성된 URL을 아래에 붙여넣습니다.
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?output=csv';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?gid=1966941459&single=true&output=csv';
 
 const SEARCHABLE_COLUMNS = ['작품명/지문명']; 
 const FILTERABLE_COLUMNS = ['수록교재', '대단원', '중단원'];
@@ -495,7 +495,7 @@ const App: React.FC = () => {
         
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
             <div className="text-center mt-12 mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 엑스퍼트 작품 찾기</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 작품/지문 수록교재 찾기</h1>
                 <p className="mt-2 text-md sm:text-lg text-slate-600 dark:text-slate-400">찾고 있는 작품이 수록된 교재를 빠르게 찾아보세요!</p>
             </div>
 
@@ -658,7 +658,11 @@ const App: React.FC = () => {
                                        {searchTerm || Object.values(filters).some(v => v) ? "검색 결과가 없습니다" : "표시할 데이터가 없습니다"}
                                     </h3>
                                     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                                       {searchTerm || Object.values(filters).some(v => v) ? "다른 검색어나 필터를 사용해 보세요." : "스프레드시트가 비어있을 수 있습니다."}
+                                       {searchTerm || Object.values(filters).some(v => v) ? (
+                                        <>
+                                            준비 중인 교재의 오픈 일정은 <a href="https://solvookguide.oopy.io/expert-update/ko" target="_blank" rel="noopener noreferrer" className="font-medium text-violet-600 hover:underline dark:text-violet-400">여기</a>에서 확인해보세요.
+                                        </>
+                                       ) : "스프레드시트가 비어있을 수 있습니다."}
                                      </p>
                                 </div>
                             )}

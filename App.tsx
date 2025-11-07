@@ -44,6 +44,38 @@ const DISPLAY_COLUMNS = [
 ]; 
 // --- END OF CONFIGURATION ---
 
+// Helper function for robust CSV line parsing. This handles cases where
+// fields contain commas by respecting double quotes.
+const parseCsvLine = (line: string): string[] => {
+    const values: string[] = [];
+    let currentVal = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+                // This is an escaped quote "" inside a quoted field
+                currentVal += '"';
+                i++; // Skip the next quote
+            } else {
+                // This is a starting or ending quote
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            // This is a field separator
+            values.push(currentVal);
+            currentVal = '';
+        } else {
+            // Any other character
+            currentVal += char;
+        }
+    }
+    values.push(currentVal); // Add the last value
+
+    return values;
+};
 
 const LoadingSpinner: React.FC = () => (
     <div className="flex flex-col items-center justify-center p-8 h-64">
@@ -209,8 +241,8 @@ const App: React.FC = () => {
                 } else {
                     const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
                     const newRows = lines.slice(1).map((line: string) => {
-                        // Regex to split by comma but ignore commas inside double quotes
-                        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                        // Use the new robust parser instead of a regex split, which can be unreliable.
+                        const values = parseCsvLine(line);
                         return headers.reduce((obj, header, index) => {
                             const value = values[index] || '';
                             // Trim, remove surrounding quotes, and unescape double quotes

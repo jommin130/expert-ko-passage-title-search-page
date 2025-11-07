@@ -191,8 +191,7 @@ const App: React.FC = () => {
     const ITEMS_PER_PAGE = 20;
 
     useEffect(() => {
-        const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?output=csv';
-
+        const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?gid=1966941459&single=true&output=csv';
         const fetchData = async () => {
             if (isInitialMount.current) setIsLoading(true);
             setError(null);

@@ -261,6 +261,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 aria-label={label}
+                title={getDisplayValue()}
             >
                 <span className={`block truncate ${value ? 'text-slate-700 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>{getDisplayValue()}</span>
                 <svg className={`h-5 w-5 flex-shrink-0 ml-2 text-slate-400 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -270,7 +271,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
 
             {isOpen && (
                  <div
-                    className="absolute z-10 mt-1 w-max min-w-full rounded-md border border-slate-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
+                    className="absolute z-10 mt-1 w-max min-w-full max-w-lg rounded-md border border-slate-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
                     role="listbox"
                 >
                     <div className="max-h-60 overflow-auto p-1">
@@ -294,7 +295,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
                                 role="option"
                                 aria-selected={value === option}
                             >
-                                <span className="block whitespace-nowrap">{optionLabels?.[option] || option}</span>
+                                <span className="block">{optionLabels?.[option] || option}</span>
                             </button>
                         ))}
                     </div>
@@ -350,7 +351,7 @@ const App: React.FC = () => {
 
             } catch (err: any) {
                 console.error(err);
-                setError(err.message || '예기치 않은 오류가 발생했습니다.');
+                setError(err.message || '일시적인 오류가 발생했어요. 페이지를 새로고침 해주세요.');
             } finally {
                 if (isInitialMount.current) {
                     setIsLoading(false);
@@ -476,7 +477,7 @@ const App: React.FC = () => {
         
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
             <div className="text-center mt-12 mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 엑스퍼트 작품 찾기</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 작품/지문 수록교재 찾기</h1>
                 <p className="mt-2 text-md sm:text-lg text-slate-600 dark:text-slate-400">찾고 있는 작품이 수록된 교재를 빠르게 찾아보세요!</p>
             </div>
 
@@ -632,5 +633,3 @@ const App: React.FC = () => {
       </div>
     );
 };
-
-export default App;

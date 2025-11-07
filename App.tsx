@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, Fragment } from 'react';
 
 type RowData = Record<string, string>;
 
@@ -33,6 +32,12 @@ const HighlightedText: React.FC<{ text: string | undefined; highlight: string }>
 
 
 // --- CONFIGURATION ---
+// 1. Google Sheets에서 '파일' > '공유' > '웹에 게시'를 선택합니다.
+// 2. '링크' 탭에서 변경하려는 시트(탭)를 선택합니다.
+// 3. '웹페이지' 대신 '쉼표로 구분된 값(.csv)'을 선택합니다.
+// 4. '게시' 버튼을 누르고 생성된 URL을 아래에 붙여넣습니다.
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?output=csv';
+
 const SEARCHABLE_COLUMNS = ['작품명/지문명']; 
 const FILTERABLE_COLUMNS = ['수록교재', '대단원', '중단원'];
 
@@ -43,6 +48,7 @@ const DISPLAY_COLUMNS = [
     { header: '중단원' },
 ]; 
 // --- END OF CONFIGURATION ---
+
 
 // Helper function for robust CSV line parsing. This handles cases where
 // fields contain commas by respecting double quotes.
@@ -77,6 +83,7 @@ const parseCsvLine = (line: string): string[] => {
     return values;
 };
 
+
 const LoadingSpinner: React.FC = () => (
     <div className="flex flex-col items-center justify-center p-8 h-64">
         <svg className="animate-spin h-8 w-8 text-violet-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -95,7 +102,7 @@ const ErrorDisplay: React.FC<{ message: string }> = ({ message }) => (
 );
 
 const AppHeader: React.FC = () => (
-    <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+    <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-20">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0">
@@ -210,11 +217,99 @@ const PaginationControls: React.FC<{
     );
 };
 
+interface CustomDropdownProps {
+    options: string[];
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    label: string;
+    optionLabels?: Record<string, string>;
+    className?: string;
+    buttonClassName?: string;
+}
+
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange, placeholder, label, optionLabels, className, buttonClassName }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleSelect = (option: string) => {
+        onChange(option);
+        setIsOpen(false);
+    };
+
+    const getDisplayValue = () => {
+        if (!value) return placeholder;
+        return optionLabels?.[value] || value;
+    };
+
+    return (
+        <div className={`relative ${className || ''}`} ref={dropdownRef}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex w-full items-center justify-between border bg-white px-4 py-2 text-sm shadow-sm transition focus:outline-none dark:border-slate-600 dark:bg-slate-800 ${buttonClassName || ''}`}
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
+                aria-label={label}
+            >
+                <span className={`block truncate ${value ? 'text-slate-700 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>{getDisplayValue()}</span>
+                <svg className={`h-5 w-5 flex-shrink-0 ml-2 text-slate-400 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                </svg>
+            </button>
+
+            {isOpen && (
+                 <div
+                    className="absolute z-10 mt-1 w-max min-w-full rounded-md border border-slate-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-800"
+                    role="listbox"
+                >
+                    <div className="max-h-60 overflow-auto p-1">
+                        {placeholder && (
+                             <button
+                                type="button"
+                                onClick={() => handleSelect('')}
+                                className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${!value ? 'bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-200' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                role="option"
+                                aria-selected={!value}
+                            >
+                                {placeholder}
+                            </button>
+                        )}
+                        {options.map(option => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => handleSelect(option)}
+                                className={`mt-1 w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${value === option ? 'bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-200' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                                role="option"
+                                aria-selected={value === option}
+                            >
+                                <span className="block whitespace-nowrap">{optionLabels?.[option] || option}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 
 const App: React.FC = () => {
     const [data, setData] = useState<RowData[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [filters, setFilters] = useState<Record<string, string>>({});
+    const [sortKey, setSortKey] = useState<string>(DISPLAY_COLUMNS[0].header);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -223,13 +318,12 @@ const App: React.FC = () => {
     const ITEMS_PER_PAGE = 20;
 
     useEffect(() => {
-        const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?gid=1966941459&single=true&output=csv';
         const fetchData = async () => {
             if (isInitialMount.current) setIsLoading(true);
             setError(null);
             
             try {
-                const response = await fetch(`${publishedCsvUrl}&t=${new Date().getTime()}`);
+                const response = await fetch(`${GOOGLE_SHEET_CSV_URL}&t=${new Date().getTime()}`);
                 if (!response.ok) throw new Error(`데이터를 가져오는 데 실패했습니다. (상태: ${response.status})`);
 
                 const csvText = await response.text();
@@ -281,38 +375,93 @@ const App: React.FC = () => {
     }, [data]);
 
     const handleFilterChange = (column: string, value: string) => {
-        setFilters(prev => ({ ...prev, [column]: value }));
+        setFilters(prev => {
+            const newFilters = { ...prev };
+            if (value) {
+                newFilters[column] = value;
+            } else {
+                delete newFilters[column]; // Remove filter if "All" is selected
+            }
+            
+            // When a higher-level filter changes (e.g., '수록교재'), reset lower-level filters
+            const filterIndex = FILTERABLE_COLUMNS.indexOf(column);
+            if (filterIndex !== -1) {
+                for (let i = filterIndex + 1; i < FILTERABLE_COLUMNS.length; i++) {
+                    delete newFilters[FILTERABLE_COLUMNS[i]];
+                }
+            }
+
+            return newFilters;
+        });
+    };
+    
+    const handleResetFilters = () => {
+        setFilters({});
     };
 
     const filteredData = useMemo(() => {
         const lowercasedTerm = searchTerm.toLowerCase();
         
-        const results = data.filter(row => {
-            // Apply filters first
-            const filterMatch = FILTERABLE_COLUMNS.every(col => {
-                const filterValue = filters[col];
-                return !filterValue || row[col] === filterValue;
-            });
-            if (!filterMatch) return false;
+        let results = data;
 
-            // Then apply search term
-            if (!searchTerm) return true;
-            return SEARCHABLE_COLUMNS.some(col =>
-                row[col] && String(row[col]).toLowerCase().includes(lowercasedTerm)
+        // Apply filters hierarchically
+        for (const col of FILTERABLE_COLUMNS) {
+            const filterValue = filters[col];
+            if (filterValue) {
+                results = results.filter(row => row[col] === filterValue);
+            }
+        }
+
+        // Then apply search term
+        if (searchTerm) {
+            results = results.filter(row =>
+                SEARCHABLE_COLUMNS.some(col =>
+                    row[col] && String(row[col]).toLowerCase().includes(lowercasedTerm)
+                )
             );
-        });
+        }
 
         return [...results].sort((a, b) => {
-            const sortKey = DISPLAY_COLUMNS[0].header;
+            if (sortKey === DISPLAY_COLUMNS[1].header) { // '수록교재' 이름순 정렬
+                const textbookCompare = (a[DISPLAY_COLUMNS[1].header] || '').localeCompare(b[DISPLAY_COLUMNS[1].header] || '', 'ko');
+                if (textbookCompare !== 0) return textbookCompare;
+
+                const mainUnitCompare = (a[DISPLAY_COLUMNS[2].header] || '').localeCompare(b[DISPLAY_COLUMNS[2].header] || '', 'ko');
+                if (mainUnitCompare !== 0) return mainUnitCompare;
+
+                return (a[DISPLAY_COLUMNS[3].header] || '').localeCompare(b[DISPLAY_COLUMNS[3].header] || '', 'ko');
+            }
+            
+            // Default sort ('작품명/지문명' 이름순)
             const valA = a[sortKey] || '';
             const valB = b[sortKey] || '';
-            return valA.localeCompare(valB);
+            return valA.localeCompare(valB, 'ko');
         });
-    }, [data, searchTerm, filters]);
+    }, [data, searchTerm, filters, sortKey]);
+
+    const dynamicFilterOptions = useMemo(() => {
+        const newOptions: Record<string, string[]> = {};
+        let temp_data = data;
+
+        FILTERABLE_COLUMNS.forEach((col, index) => {
+            // Get unique values from the currently filtered data
+            const uniqueValues = [...new Set(temp_data.map(row => row[col]).filter(Boolean))];
+            newOptions[col] = uniqueValues.sort((a, b) => a.localeCompare(b));
+
+            // Filter temp_data for the next dropdown based on the current filter selection
+            const filterValue = filters[col];
+            if (filterValue) {
+                temp_data = temp_data.filter(row => row[col] === filterValue);
+            }
+        });
+
+        return newOptions;
+    }, [data, filters]);
+
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filters]);
+    }, [searchTerm, filters, sortKey]);
 
     const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
@@ -326,8 +475,8 @@ const App: React.FC = () => {
         <AppHeader />
         
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-            <div className="text-center mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 작품/지문 수록교재 찾기</h1>
+            <div className="text-center mt-12 mb-8">
+                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">국어 엑스퍼트 작품 찾기</h1>
                 <p className="mt-2 text-md sm:text-lg text-slate-600 dark:text-slate-400">찾고 있는 작품이 수록된 교재를 빠르게 찾아보세요!</p>
             </div>
 
@@ -348,31 +497,33 @@ const App: React.FC = () => {
                    </div>
                 </div>
                 
-                <div className="mt-4 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
-                    {FILTERABLE_COLUMNS.map(col => {
-                        const label = col;
-                        return (
-                            <div key={col} className="relative w-full sm:w-52">
-                                <label htmlFor={`filter-${col}`} className="sr-only">{label}</label>
-                                <select
-                                    id={`filter-${col}`}
-                                    value={filters[col] || ''}
-                                    onChange={(e) => handleFilterChange(col, e.target.value)}
-                                    className="w-full text-sm border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 py-2 pl-3 pr-8 transition shadow-sm appearance-none"
-                                >
-                                    <option value="">{label}</option>
-                                    {filterOptions[col]?.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
-                                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        );
-                    })}
+                <div className="mt-4 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
+                     {FILTERABLE_COLUMNS.map(col => (
+                        <CustomDropdown
+                           key={col}
+                           label={col}
+                           value={filters[col] || ''}
+                           onChange={(value) => handleFilterChange(col, value)}
+                           options={dynamicFilterOptions[col] || []}
+                           placeholder={`모든 ${col}`}
+                           buttonClassName="rounded-full border-slate-300"
+                           className="w-56"
+                        />
+                    ))}
+                    <button
+                        onClick={handleResetFilters}
+                        className={`flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition-all duration-200 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700 ${
+                            Object.values(filters).some(v => v)
+                            ? 'opacity-100 scale-100'
+                            : 'pointer-events-none opacity-0 scale-50'
+                        }`}
+                        aria-label="Reset all filters"
+                        title="필터 초기화"
+                    >
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
             </div>
             
@@ -383,6 +534,24 @@ const App: React.FC = () => {
             )}
 
             <div className="mt-6">
+                 <div className="flex justify-between items-center mb-2 px-1">
+                     <CustomDropdown
+                        label="정렬 기준"
+                        value={sortKey}
+                        onChange={setSortKey}
+                        options={[DISPLAY_COLUMNS[0].header, DISPLAY_COLUMNS[1].header]}
+                        optionLabels={{
+                            [DISPLAY_COLUMNS[0].header]: '작품/지문 이름순',
+                            [DISPLAY_COLUMNS[1].header]: '수록교재 이름순',
+                        }}
+                        className="w-full sm:w-52"
+                        buttonClassName="rounded-md border-slate-300"
+                    />
+                     <div className="text-sm text-slate-600 dark:text-slate-400">
+                        총 {filteredData.length}개 결과
+                    </div>
+                </div>
+
                 <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     {isLoading ? <LoadingSpinner /> : error ? <ErrorDisplay message={error} /> : (
                          <div>

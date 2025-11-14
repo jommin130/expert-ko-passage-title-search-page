@@ -357,7 +357,10 @@ const App: React.FC = () => {
                             obj[header] = value.trim().replace(/^"|"$/g, '').replace(/""/g, '"');
                             return obj;
                         }, {} as RowData);
-                    });
+                      }).filter(row => 
+                        // Filter out rows where all values are empty.
+                        Object.values(row).some(value => value && value.trim() !== '')
+                    );
                     setData(newRows);
                 }
                 setLastUpdated(new Date());

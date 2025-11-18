@@ -10,5 +10,5 @@ export default defineConfig({
   // 예를 들어, 저장소 주소가 https://github.com/USER/expert-search-page 라면,
   // base 값은 '/expert-search-page/' 가 되어야 합니다.
   //
-  base: '/expert-ko-passage-title-search-page/', 
+  base: '/', 
 })

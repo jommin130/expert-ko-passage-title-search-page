@@ -36,7 +36,7 @@ const HighlightedText: React.FC<{ text: string | undefined; highlight: string }>
 // 2. '링크' 탭에서 변경하려는 시트(탭)를 선택합니다.
 // 3. '웹페이지' 대신 '쉼표로 구분된 값(.csv)'을 선택합니다.
 // 4. '게시' 버튼을 누르고 생성된 URL을 아래에 붙여넣습니다.
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?gid=1966941459&single=true&output=csv';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZy_puUxHDNiMvPG4kZsJlN6C-oZwMvtF9TcvW-iEeZD-PY-oSMK11f3A8-R5P10Mq70LSapm9Hj/pub?gid=1342590735&single=true&output=csv';
 
 const SEARCHABLE_COLUMNS = ['작품명/지문명']; 
 const FILTERABLE_COLUMNS = ['수록교재', '대단원', '중단원'];
@@ -113,7 +113,7 @@ const AppHeader: React.FC = () => (
             />
           </div>
            <div className="flex items-center">
-              <a href="https://expert.staging.solvook.com/handouts?type=koVariant" target="_blank" rel="noopener noreferrer" 
+              <a href="https://expert.solvook.com/handouts?type=koVariant" target="_blank" rel="noopener noreferrer" 
                  className="bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-500/30 text-sm font-medium px-4 py-2 rounded-full flex items-center gap-2 transition-colors">
                  엑스퍼트로 돌아가기
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -641,7 +641,7 @@ const App: React.FC = () => {
                                                 
                                                 <div className="col-span-12 sm:col-span-2 text-left sm:text-right mt-2 sm:mt-0">
                                                     <a
-                                                        href="https://expert.staging.solvook.com/handout/new/ko-select?type=koVariant"
+                                                        href="https://expert.solvook.com/handout/new/ko-select?type=koVariant"
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="inline-block text-sm font-medium text-violet-700 bg-white dark:text-violet-300 dark:bg-slate-700 border border-violet-300 dark:border-violet-500 rounded-md px-4 py-2 whitespace-nowrap hover:bg-violet-50 dark:hover:bg-slate-600 transition-colors">
